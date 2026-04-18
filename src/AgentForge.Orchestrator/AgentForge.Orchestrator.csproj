@@ -4,8 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>agentforge_orchestrator</RootNamespace>
-    <UserSecretsId>2ee36fab-e5b4-4a83-be41-f91f9207bdc9</UserSecretsId>
+    <UserSecretsId>d4ec905e-3625-4aff-8d63-eb80e4565e0a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
