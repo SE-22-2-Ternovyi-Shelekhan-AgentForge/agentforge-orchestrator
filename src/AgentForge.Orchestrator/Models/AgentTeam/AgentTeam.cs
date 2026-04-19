@@ -1,10 +1,19 @@
-﻿namespace AgentForge.Orchestrator.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace AgentForge.Orchestrator.Models
 {
     public class AgentTeam
     {
-        public Guid Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid AgentTeamId { get; set; }
+
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; }
-        public List<Agent> Agents { get; set; } = new();
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public List<Agent> Agents { get; set; } = new List<Agent>();
+        public List<Conversation> Conversations { get; set; } = new List<Conversation>();
     }
 }

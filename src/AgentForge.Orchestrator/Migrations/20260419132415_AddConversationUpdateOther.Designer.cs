@@ -4,6 +4,7 @@ using AgentForge.Orchestrator.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgentForge.Orchestrator.Migrations
 {
     [DbContext(typeof(AgentForgeDbContext))]
-    partial class AgentForgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419132415_AddConversationUpdateOther")]
+    partial class AddConversationUpdateOther
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,11 +27,8 @@ namespace AgentForge.Orchestrator.Migrations
 
             modelBuilder.Entity("AgentForge.Orchestrator.Models.Agent", b =>
                 {
-                    b.Property<Guid>("AgentId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AgentTeamId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Capabilities")
@@ -54,19 +54,22 @@ namespace AgentForge.Orchestrator.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double>("Temperature")
                         .HasColumnType("float");
 
-                    b.HasKey("AgentId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AgentTeamId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Agents");
                 });
 
             modelBuilder.Entity("AgentForge.Orchestrator.Models.AgentTeam", b =>
                 {
-                    b.Property<Guid>("AgentTeamId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -75,14 +78,14 @@ namespace AgentForge.Orchestrator.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("AgentTeamId");
+                    b.HasKey("Id");
 
                     b.ToTable("AgentTeams");
                 });
 
             modelBuilder.Entity("AgentForge.Orchestrator.Models.ChatMessage", b =>
                 {
-                    b.Property<Guid>("ChatMessageId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -106,7 +109,7 @@ namespace AgentForge.Orchestrator.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ChatMessageId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ConversationId");
 
@@ -115,15 +118,15 @@ namespace AgentForge.Orchestrator.Migrations
 
             modelBuilder.Entity("AgentForge.Orchestrator.Models.Conversation", b =>
                 {
-                    b.Property<Guid>("ConversationId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AgentTeamId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("TeamId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -136,9 +139,9 @@ namespace AgentForge.Orchestrator.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("ConversationId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AgentTeamId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Conversations");
                 });
@@ -147,7 +150,7 @@ namespace AgentForge.Orchestrator.Migrations
                 {
                     b.HasOne("AgentForge.Orchestrator.Models.AgentTeam", "Team")
                         .WithMany("Agents")
-                        .HasForeignKey("AgentTeamId")
+                        .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -169,8 +172,8 @@ namespace AgentForge.Orchestrator.Migrations
                 {
                     b.HasOne("AgentForge.Orchestrator.Models.AgentTeam", "Team")
                         .WithMany("Conversations")
-                        .HasForeignKey("AgentTeamId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Team");
                 });

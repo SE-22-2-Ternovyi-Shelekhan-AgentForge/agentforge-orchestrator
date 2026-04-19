@@ -4,6 +4,7 @@ using AgentForge.Orchestrator.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgentForge.Orchestrator.Migrations
 {
     [DbContext(typeof(AgentForgeDbContext))]
-    partial class AgentForgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419134915_UpdateIdColumnNames")]
+    partial class UpdateIdColumnNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,9 +29,6 @@ namespace AgentForge.Orchestrator.Migrations
                 {
                     b.Property<Guid>("AgentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AgentTeamId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Capabilities")
@@ -54,12 +54,15 @@ namespace AgentForge.Orchestrator.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double>("Temperature")
                         .HasColumnType("float");
 
                     b.HasKey("AgentId");
 
-                    b.HasIndex("AgentTeamId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Agents");
                 });
@@ -82,7 +85,7 @@ namespace AgentForge.Orchestrator.Migrations
 
             modelBuilder.Entity("AgentForge.Orchestrator.Models.ChatMessage", b =>
                 {
-                    b.Property<Guid>("ChatMessageId")
+                    b.Property<Guid>("ChatIMessaged")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -106,7 +109,7 @@ namespace AgentForge.Orchestrator.Migrations
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ChatMessageId");
+                    b.HasKey("ChatIMessaged");
 
                     b.HasIndex("ConversationId");
 
@@ -119,11 +122,11 @@ namespace AgentForge.Orchestrator.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AgentTeamId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("TeamId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -138,7 +141,7 @@ namespace AgentForge.Orchestrator.Migrations
 
                     b.HasKey("ConversationId");
 
-                    b.HasIndex("AgentTeamId");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Conversations");
                 });
@@ -147,7 +150,7 @@ namespace AgentForge.Orchestrator.Migrations
                 {
                     b.HasOne("AgentForge.Orchestrator.Models.AgentTeam", "Team")
                         .WithMany("Agents")
-                        .HasForeignKey("AgentTeamId")
+                        .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -169,8 +172,8 @@ namespace AgentForge.Orchestrator.Migrations
                 {
                     b.HasOne("AgentForge.Orchestrator.Models.AgentTeam", "Team")
                         .WithMany("Conversations")
-                        .HasForeignKey("AgentTeamId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Team");
                 });

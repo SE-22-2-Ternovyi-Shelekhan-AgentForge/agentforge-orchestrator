@@ -2,10 +2,11 @@
 {
     public class ChatMessageDto
     {
-        public Guid Id { get; set; }
+        public Guid ChatMessageId { get; set; }
+        public Guid ConversationId { get; set; }
         public string Content { get; set; }
+        public string Role { get; set; }
         public string SenderName { get; set; }
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        public Guid TeamId { get; set; }
+        public DateTime Timestamp { get; set; }
     }
 }

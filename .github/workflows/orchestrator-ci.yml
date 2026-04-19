@@ -24,10 +24,14 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       
-      - name: Restore & Build .NET
-        run: |
-          dotnet restore src/AgentForge.Orchestrator/AgentForge.Orchestrator.csproj
-          dotnet build src/AgentForge.Orchestrator/AgentForge.Orchestrator.csproj --configuration Release --no-restore
+      - name: Restore dependencies
+        run: dotnet restore AgentForge.Orchestrator.sln
+
+      - name: Build
+        run: dotnet build AgentForge.Orchestrator.sln --configuration Release --no-restore
+
+      - name: Run Tests
+        run: dotnet test AgentForge.Orchestrator.sln --configuration Release --no-build --verbosity normal
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -35,7 +39,7 @@ jobs:
       - name: Test Docker Build
         uses: docker/build-push-action@v5
         with:
-          context: ./src/AgentForge.Orchestrator
+          context: .
           file: ./src/AgentForge.Orchestrator/Dockerfile
           push: false
           cache-from: type=gha
