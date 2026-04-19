@@ -1,0 +1,14 @@
+{
+  "packages": {
+    "agentforge-orchestrator/src/AgentForge.Orchestrator": {
+      "release-type": "dotnet",
+      "package-name": "AgentForge.Orchestrator",
+      "initial-version": "0.1.0"
+    }
+  },
+  "plugins": [
+    {
+      "type": "sentence-case"
+    }
+  ]
+}
