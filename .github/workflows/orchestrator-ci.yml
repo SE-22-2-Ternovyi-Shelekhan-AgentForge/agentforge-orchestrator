@@ -35,8 +35,8 @@ jobs:
       - name: Test Docker Build
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./src/AgentForge.Orchestrator/Dockerfile
+          context: ./src/AgentForge.Orchestrator
+          file: Dockerfile
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
