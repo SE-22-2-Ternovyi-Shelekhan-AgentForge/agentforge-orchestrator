@@ -1,6 +1,6 @@
 {
   "packages": {
-    "agentforge-orchestrator/src/AgentForge.Orchestrator": {
+    "src/AgentForge.Orchestrator": {
       "release-type": "simple",
       "package-name": "AgentForge.Orchestrator",
       "initial-version": "0.1.0",
