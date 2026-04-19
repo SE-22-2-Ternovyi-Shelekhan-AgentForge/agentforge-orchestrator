@@ -4,6 +4,7 @@ using AgentForge.Orchestrator.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgentForge.Orchestrator.Migrations
 {
     [DbContext(typeof(AgentForgeDbContext))]
-    partial class AgentForgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260419150624_FixConversationIdShadowState")]
+    partial class FixConversationIdShadowState
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -2,9 +2,9 @@
 {
     public class AgentTeamDto
     {
-        public Guid Id { get; set; }
+        public Guid AgentTeamId { get; set; }
         public string Name { get; set; }
-        public List<Agent> Agents { get; set; } = new();
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public List<AgentDto> Agents { get; set; } = new List<AgentDto>();
+        public DateTime CreatedAt { get; set; }
     }
 }

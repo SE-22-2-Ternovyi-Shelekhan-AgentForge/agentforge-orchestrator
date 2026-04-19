@@ -1,12 +1,29 @@
+using AgentForge.Orchestrator;
 using AgentForge.Orchestrator.DatabaseContext;
+using AgentForge.Orchestrator.Repositories;
+using AgentForge.Orchestrator.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddDbContext<AgentForgeDbContext>((DbContextOptionsBuilder options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IAgentTeamRepository, AgentTeamRepository>();
+builder.Services.AddScoped<IAgentRepository, AgentRepository>();
+
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IAgentService, AgentService>();
+
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<OrchestratorProfile>();
 });
 
 builder.Services.AddControllers();
