@@ -1,9 +1,10 @@
 {
   "packages": {
     "agentforge-orchestrator/src/AgentForge.Orchestrator": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "package-name": "AgentForge.Orchestrator",
-      "initial-version": "0.1.0"
+      "initial-version": "0.1.0",
+      "version-file": "AgentForge.Orchestrator.csproj"
     }
   },
   "plugins": [
