@@ -26,5 +26,7 @@ namespace AgentForge.Orchestrator.Models
         public string SenderName { get; set; }
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        public Guid? AgentSessionId { get; set; }
     }
 }

@@ -10,5 +10,6 @@
         public string ModelName { get; set; }
         public double Temperature { get; set; }
         public List<string> Capabilities { get; set; } = new List<string>();
+        public List<string> Tools { get; set; } = new();
     }
 }

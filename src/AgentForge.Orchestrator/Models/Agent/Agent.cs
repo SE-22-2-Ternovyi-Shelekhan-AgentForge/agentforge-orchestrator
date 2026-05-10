@@ -34,5 +34,7 @@ namespace AgentForge.Orchestrator.Models
         public double Temperature { get; set; }
 
         public string Capabilities { get; set; }
+
+        public List<string> Tools { get; set; } = new();
     }
 }

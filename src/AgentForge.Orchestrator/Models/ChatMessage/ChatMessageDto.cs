@@ -8,5 +8,6 @@
         public string Role { get; set; }
         public string SenderName { get; set; }
         public DateTime Timestamp { get; set; }
+        public Guid? AgentSessionId { get; set; }
     }
 }

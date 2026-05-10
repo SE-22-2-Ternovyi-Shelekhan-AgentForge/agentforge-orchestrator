@@ -13,6 +13,8 @@ namespace AgentForge.Orchestrator.Models
         [MaxLength(100)]
         public string Name { get; set; }
 
+        public string? SupervisorPrompt { get; set; }
+
         public List<Agent> Agents { get; set; } = new List<Agent>();
         public List<Conversation> Conversations { get; set; } = new List<Conversation>();
     }
