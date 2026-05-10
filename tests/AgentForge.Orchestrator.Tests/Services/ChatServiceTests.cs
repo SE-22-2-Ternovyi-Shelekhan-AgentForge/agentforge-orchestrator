@@ -6,7 +6,9 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using AutoMapper;
+using AgentForge.Orchestrator.Messaging;
 using AgentForge.Orchestrator.Models;
+using AgentForge.Orchestrator.Models.Broker;
 using AgentForge.Orchestrator.Services;
 using AgentForge.Orchestrator.Repositories;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,14 +20,16 @@ namespace AgentForge.Orchestrator.Tests.Services
         private readonly Mock<IConversationRepository> _convRepoMock;
         private readonly Mock<IChatRepository> _chatRepoMock;
         private readonly Mock<IAgentTeamRepository> _teamRepoMock;
+        private readonly Mock<ISessionPublisher> _publisherMock;
         private readonly IMapper _mapper;
         private readonly ChatService _chatService;
 
         public ChatServiceTests()
         {
-            _convRepoMock = new Mock<IConversationRepository>();
-            _chatRepoMock = new Mock<IChatRepository>();
-            _teamRepoMock = new Mock<IAgentTeamRepository>();
+            _convRepoMock  = new Mock<IConversationRepository>();
+            _chatRepoMock  = new Mock<IChatRepository>();
+            _teamRepoMock  = new Mock<IAgentTeamRepository>();
+            _publisherMock = new Mock<ISessionPublisher>();
             var loggerFactory = new NullLoggerFactory();
 
             var configuration = new MapperConfiguration(cfg =>
@@ -39,7 +43,8 @@ namespace AgentForge.Orchestrator.Tests.Services
                 _convRepoMock.Object,
                 _chatRepoMock.Object,
                 _teamRepoMock.Object,
-                _mapper);
+                _mapper,
+                _publisherMock.Object);
         }
 
         [Fact]
@@ -103,8 +108,11 @@ namespace AgentForge.Orchestrator.Tests.Services
             var convId = Guid.NewGuid();
             var teamId = Guid.NewGuid();
             var conversation = new Conversation { ConversationId = convId, AgentTeamId = teamId };
+            var team = new AgentTeam { AgentTeamId = teamId, Agents = new List<Agent>() };
 
             _convRepoMock.Setup(r => r.RetrieveAsync(convId)).ReturnsAsync(conversation);
+            _teamRepoMock.Setup(r => r.RetrieveAsync(teamId)).ReturnsAsync(team);
+            _chatRepoMock.Setup(r => r.RetrieveHistoryAsync(convId)).ReturnsAsync(new List<ChatMessage>());
 
             var result = await _chatService.ProcessUserMessageAsync(convId, "Hi bot", "User1");
 
@@ -115,6 +123,10 @@ namespace AgentForge.Orchestrator.Tests.Services
             _chatRepoMock.Verify(r => r.AddMessageAsync(It.Is<ChatMessage>(m =>
                 m.ConversationId == convId &&
                 m.Content == "Hi bot")), Times.Once);
+
+            _publisherMock.Verify(p => p.PublishSession(It.Is<AgentSessionRequestedDto>(s =>
+                s.ConversationId == convId &&
+                s.UserPrompt == "Hi bot")), Times.Once);
         }
 
         [Fact]
@@ -152,8 +164,11 @@ namespace AgentForge.Orchestrator.Tests.Services
             var convId = Guid.NewGuid();
             var teamId = Guid.NewGuid();
             var conversation = new Conversation { ConversationId = convId, AgentTeamId = teamId };
+            var team = new AgentTeam { AgentTeamId = teamId, Agents = new List<Agent>() };
 
             _convRepoMock.Setup(r => r.RetrieveAsync(convId)).ReturnsAsync(conversation);
+            _teamRepoMock.Setup(r => r.RetrieveAsync(teamId)).ReturnsAsync(team);
+            _chatRepoMock.Setup(r => r.RetrieveHistoryAsync(convId)).ReturnsAsync(new List<ChatMessage>());
 
             await _chatService.ProcessUserMessageAsync(convId, "Hello", "User");
 

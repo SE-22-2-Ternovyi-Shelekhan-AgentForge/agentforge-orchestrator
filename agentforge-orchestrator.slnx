@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/AgentForge.Orchestrator/AgentForge.Orchestrator.csproj" />
+  <Project Path="tests/AgentForge.Orchestrator.Tests/AgentForge.Orchestrator.Tests.csproj" />
+</Solution>

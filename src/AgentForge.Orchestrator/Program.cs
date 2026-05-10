@@ -1,5 +1,7 @@
 using AgentForge.Orchestrator;
 using AgentForge.Orchestrator.DatabaseContext;
+using AgentForge.Orchestrator.Hubs;
+using AgentForge.Orchestrator.Messaging;
 using AgentForge.Orchestrator.Repositories;
 using AgentForge.Orchestrator.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,24 +9,32 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<AgentForgeDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDbContext<AgentForgeDbContext>((DbContextOptionsBuilder options) =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
+// Repositories
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IAgentTeamRepository, AgentTeamRepository>();
 builder.Services.AddScoped<IAgentRepository, AgentRepository>();
+builder.Services.AddScoped<IAgentSessionTraceRepository, AgentSessionTraceRepository>();
 
+// Services
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IAgentService, AgentService>();
 
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<OrchestratorProfile>();
-});
+// AutoMapper
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<OrchestratorProfile>());
+
+// Messaging (RabbitMQ)
+builder.Services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
+builder.Services.AddSingleton<ISessionPublisher, SessionPublisher>();
+builder.Services.AddHostedService<EventsConsumer>();
+builder.Services.AddHostedService<ResultsConsumer>();
+builder.Services.AddHostedService<ErrorsConsumer>();
+
+// SignalR
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -38,16 +48,14 @@ var app = builder.Build();
 if (app.Configuration.GetValue<bool>("DatabaseSettings:RunMigrationsOnStartup"))
 {
     using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<AgentForgeDbContext>();
-        context.Database.Migrate();
+        scope.ServiceProvider.GetRequiredService<AgentForgeDbContext>().Database.Migrate();
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Exception while migrating DB.");
+        scope.ServiceProvider.GetRequiredService<ILogger<Program>>()
+            .LogError(ex, "Exception while migrating DB.");
     }
 }
 
@@ -60,5 +68,6 @@ app.UseSwaggerUI(c =>
 
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();
