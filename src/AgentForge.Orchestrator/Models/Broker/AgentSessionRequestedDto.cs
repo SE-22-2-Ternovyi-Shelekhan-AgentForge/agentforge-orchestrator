@@ -30,6 +30,7 @@ public class AgentConfigDto
 {
     [JsonPropertyName("role")]          public string Role { get; set; } = "";
     [JsonPropertyName("system_prompt")] public string SystemPrompt { get; set; } = "";
+    [JsonPropertyName("provider")]      public string? Provider { get; set; }   // "ollama" | "openai" | null → worker default
     [JsonPropertyName("model")]         public string? Model { get; set; }
     [JsonPropertyName("temperature")]   public double? Temperature { get; set; }
     [JsonPropertyName("tools")]         public List<string> Tools { get; set; } = new();

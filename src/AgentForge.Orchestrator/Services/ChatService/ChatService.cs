@@ -104,6 +104,9 @@ namespace AgentForge.Orchestrator.Services
             var team = await _teamRepository.RetrieveAsync(conversation.AgentTeamId.Value)
                 ?? throw new KeyNotFoundException($"Team {conversation.AgentTeamId} not found.");
 
+            if (team.Agents.Count == 0)
+                throw new InvalidOperationException("Cannot process message: the team has no agents configured.");
+
             // 3) Build context from history (last 20 messages, excluding the just-saved one)
             var history = (await _chatRepository.RetrieveHistoryAsync(conversationId))
                 .Where(m => m.ChatMessageId != message.ChatMessageId

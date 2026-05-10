@@ -159,7 +159,7 @@ namespace AgentForge.Orchestrator.Tests.Services
         }
 
         [Fact]
-        public async Task ProcessUserMessageAsync_WhenTeamHasNoAgents_StillSavesMessage()
+        public async Task ProcessUserMessageAsync_WhenTeamHasNoAgents_ThrowsInvalidOperationException()
         {
             var convId = Guid.NewGuid();
             var teamId = Guid.NewGuid();
@@ -168,11 +168,11 @@ namespace AgentForge.Orchestrator.Tests.Services
 
             _convRepoMock.Setup(r => r.RetrieveAsync(convId)).ReturnsAsync(conversation);
             _teamRepoMock.Setup(r => r.RetrieveAsync(teamId)).ReturnsAsync(team);
-            _chatRepoMock.Setup(r => r.RetrieveHistoryAsync(convId)).ReturnsAsync(new List<ChatMessage>());
 
-            await _chatService.ProcessUserMessageAsync(convId, "Hello", "User");
+            Func<Task> action = async () => await _chatService.ProcessUserMessageAsync(convId, "Hello", "User");
 
-            _chatRepoMock.Verify(r => r.AddMessageAsync(It.Is<ChatMessage>(m => m.Content == "Hello")), Times.Once);
+            await action.Should().ThrowAsync<InvalidOperationException>()
+                .WithMessage("*team has no agents*");
         }
 
         [Fact]
