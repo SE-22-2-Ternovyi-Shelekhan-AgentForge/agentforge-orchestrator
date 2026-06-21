@@ -23,10 +23,14 @@ namespace AgentForge.Orchestrator
 
             CreateMap<ChatMessage, ChatMessageDto>().ReverseMap();
 
+            CreateMap<TraceEntryRecord, TraceStepDto>();
+            CreateMap<AgentSessionTrace, AgentSessionTraceDto>();
+
             CreateMap<Conversation, ConversationDto>()
                 .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Team != null ? src.Team.Name : null));
 
             CreateMap<Conversation, ChatSessionDetailsDto>()
+                .ForMember(dest => dest.TeamId, opt => opt.MapFrom(src => src.AgentTeamId))
                 .ForMember(dest => dest.TeamName, opt => opt.MapFrom(src => src.Team != null ? src.Team.Name : null))
                 .ForMember(dest => dest.Agents, opt => opt.MapFrom(src => src.Team != null ? src.Team.Agents : new List<Agent>()))
                 .ForMember(dest => dest.Messages, opt => opt.Ignore());

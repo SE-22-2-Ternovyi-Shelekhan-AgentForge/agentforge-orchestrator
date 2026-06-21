@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AgentForge.Orchestrator.Hubs;
 
+[Authorize]
 public class ChatHub : Hub
 {
     public Task JoinConversation(Guid conversationId) =>

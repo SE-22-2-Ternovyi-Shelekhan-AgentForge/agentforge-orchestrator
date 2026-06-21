@@ -1,10 +1,14 @@
-﻿using AgentForge.Orchestrator.Models;
+﻿using System.Security.Claims;
+using AgentForge.Orchestrator.Exceptions;
+using AgentForge.Orchestrator.Models;
 using AgentForge.Orchestrator.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgentForge.Orchestrator.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/agents")]
     public class AgentController : ControllerBase
     {
@@ -16,6 +20,11 @@ namespace AgentForge.Orchestrator.Controllers
             _agentService = agentService;
             _chatService = chatService;
         }
+
+        private Guid CurrentUserId =>
+            Guid.Parse(User.FindFirstValue("sub")
+                ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new InvalidOperationException("Authenticated user has no subject claim."));
 
         [HttpGet("teams")]
         public async Task<IActionResult> GetAllTeams()
@@ -36,7 +45,18 @@ namespace AgentForge.Orchestrator.Controllers
 
             if (request.ConversationId != Guid.Empty)
             {
-                await _chatService.SetupConversationTeamAsync(request.ConversationId, team.AgentTeamId);
+                try
+                {
+                    await _chatService.SetupConversationTeamAsync(request.ConversationId, team.AgentTeamId, CurrentUserId);
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return NotFound(new { error = ex.Message });
+                }
+                catch (ForbiddenAccessException ex)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+                }
             }
 
             return Ok(team);

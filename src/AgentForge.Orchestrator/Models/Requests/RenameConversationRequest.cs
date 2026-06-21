@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgentForge.Orchestrator.Models
 {
-    public class CreateConversationRequest
+    public class RenameConversationRequest
     {
         [Required]
         [MaxLength(255)]

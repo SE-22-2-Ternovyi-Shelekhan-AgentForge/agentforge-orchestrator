@@ -1,5 +1,6 @@
 using AgentForge.Orchestrator.DatabaseContext;
 using AgentForge.Orchestrator.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AgentForge.Orchestrator.Repositories;
 
@@ -16,5 +17,12 @@ public class AgentSessionTraceRepository : IAgentSessionTraceRepository
     {
         await _context.AgentSessionTraces.AddAsync(trace);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<AgentSessionTrace?> RetrieveBySessionAsync(Guid sessionId)
+    {
+        return await _context.AgentSessionTraces
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.SessionId == sessionId);
     }
 }

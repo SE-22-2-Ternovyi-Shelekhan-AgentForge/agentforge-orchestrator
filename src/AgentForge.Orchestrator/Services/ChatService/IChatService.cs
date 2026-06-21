@@ -7,10 +7,12 @@ namespace AgentForge.Orchestrator.Services
     {
         Task<IEnumerable<ConversationDto>> GetUserChatsAsync(Guid userId);
         Task<Guid> CreateEmptyChatAsync(Guid userId, string title);
-        Task<ChatSessionDetailsDto> GetChatDetailsAsync(Guid conversationId);
-        Task SetupConversationTeamAsync(Guid conversationId, Guid teamId);
-        Task<ChatMessageDto> ProcessUserMessageAsync(Guid conversationId, string content, string senderName);
-        Task DeleteConversationAsync(Guid conversationId);
-        Task DeleteMessageAsync(Guid messageId);
+        Task<ChatSessionDetailsDto> GetChatDetailsAsync(Guid conversationId, Guid userId);
+        Task SetupConversationTeamAsync(Guid conversationId, Guid teamId, Guid userId);
+        Task RenameConversationAsync(Guid conversationId, string title, Guid userId);
+        Task<SendMessageResponse> ProcessUserMessageAsync(Guid conversationId, string content, string senderName, Guid userId);
+        Task DeleteConversationAsync(Guid conversationId, Guid userId);
+        Task DeleteMessageAsync(Guid messageId, Guid userId);
+        Task<AgentSessionTraceDto> GetSessionTraceAsync(Guid sessionId, Guid userId);
     }
 }
