@@ -27,11 +27,17 @@ RUN dotnet publish "./AgentForge.Orchestrator.csproj" -c $BUILD_CONFIGURATION -o
 FROM base AS final
 WORKDIR /app
 
-# Downloading CURL for healthcheck
+# Install curl for the container healthcheck. The base stage already switched to
+# the non-root app user, so flip back to root for the package install (apt needs
+# root — running it as the app user is what made the CI build fail), then return.
+USER root
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Return to common  user
 USER $APP_UID
 
 COPY --from=publish /app/publish .
+
+# Self-contained healthcheck so the image is healthy on any compose/orchestrator.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=10 \
+  CMD curl --fail --silent http://127.0.0.1:8080/health || exit 1
+
 ENTRYPOINT ["dotnet", "AgentForge.Orchestrator.dll"]
