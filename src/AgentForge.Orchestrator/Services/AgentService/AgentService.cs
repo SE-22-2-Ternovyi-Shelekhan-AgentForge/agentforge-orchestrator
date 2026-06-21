@@ -56,6 +56,11 @@ namespace AgentForge.Orchestrator.Services
             await _agentRepository.DeleteAsync(agentId);
         }
 
+        public async Task DeleteTeamAsync(Guid teamId)
+        {
+            await _teamRepository.DeleteAsync(teamId);
+        }
+
         public async Task UpdateTeamAsync(AgentTeamDto agentTeamDto)
         {
             var existingAgentTeam = await _teamRepository.RetrieveAsync(agentTeamDto.AgentTeamId);

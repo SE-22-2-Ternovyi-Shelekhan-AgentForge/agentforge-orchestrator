@@ -68,7 +68,9 @@ public class ResultsConsumer : BackgroundService
                 ConversationId = evt.ConversationId,
                 Content        = evt.FinalOutput,
                 Role           = "assistant",
-                SenderName     = evt.Trace.LastOrDefault()?.AgentRole ?? "team",
+                // The final reply is the team's synthesized summary (the
+                // per-agent contributions live in the session trace).
+                SenderName     = "summary",
                 Timestamp      = DateTime.UtcNow,
                 AgentSessionId = evt.SessionId,
             };
