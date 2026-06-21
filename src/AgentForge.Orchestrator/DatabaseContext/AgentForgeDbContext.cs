@@ -17,10 +17,15 @@ namespace AgentForge.Orchestrator.DatabaseContext
         public DbSet<Agent> Agents { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<AgentSessionTrace> AgentSessionTraces { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(m => m.Conversation)

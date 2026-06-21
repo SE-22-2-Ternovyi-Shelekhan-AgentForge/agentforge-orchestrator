@@ -1,10 +1,14 @@
-﻿using AgentForge.Orchestrator.Models;
+﻿using System.Security.Claims;
+using AgentForge.Orchestrator.Exceptions;
+using AgentForge.Orchestrator.Models;
 using AgentForge.Orchestrator.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgentForge.Orchestrator.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/chat")]
     public class ChatController : ControllerBase
     {
@@ -15,17 +19,22 @@ namespace AgentForge.Orchestrator.Controllers
             _chatService = chatService;
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserChats(Guid userId)
+        private Guid CurrentUserId =>
+            Guid.Parse(User.FindFirstValue("sub")
+                ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new InvalidOperationException("Authenticated user has no subject claim."));
+
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyChats()
         {
-            var result = await _chatService.GetUserChatsAsync(userId);
+            var result = await _chatService.GetUserChatsAsync(CurrentUserId);
             return Ok(result);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateChat([FromBody] CreateConversationRequest request)
         {
-            var newId = await _chatService.CreateEmptyChatAsync(request.UserId, request.Title);
+            var newId = await _chatService.CreateEmptyChatAsync(CurrentUserId, request.Title);
             return Ok(newId);
         }
 
@@ -34,12 +43,34 @@ namespace AgentForge.Orchestrator.Controllers
         {
             try
             {
-                await _chatService.SetupConversationTeamAsync(setupTeamRequest.ConversationId, setupTeamRequest.TeamId);
+                await _chatService.SetupConversationTeamAsync(setupTeamRequest.ConversationId, setupTeamRequest.TeamId, CurrentUserId);
                 return Ok();
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+            }
+        }
+
+        [HttpPut("{conversationId}/rename")]
+        public async Task<IActionResult> RenameConversation(Guid conversationId, [FromBody] RenameConversationRequest request)
+        {
+            try
+            {
+                await _chatService.RenameConversationAsync(conversationId, request.Title, CurrentUserId);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
         }
 
@@ -48,12 +79,16 @@ namespace AgentForge.Orchestrator.Controllers
         {
             try
             {
-                var result = await _chatService.GetChatDetailsAsync(conversationId);
+                var result = await _chatService.GetChatDetailsAsync(conversationId, CurrentUserId);
                 return Ok(result);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
         }
 
@@ -65,7 +100,8 @@ namespace AgentForge.Orchestrator.Controllers
                 var result = await _chatService.ProcessUserMessageAsync(
                     request.ConversationId,
                     request.Content,
-                    request.SenderName);
+                    request.SenderName,
+                    CurrentUserId);
 
                 return Ok(result);
             }
@@ -73,9 +109,53 @@ namespace AgentForge.Orchestrator.Controllers
             {
                 return NotFound(new { error = ex.Message });
             }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+            }
+            catch (EmptyTeamException ex)
+            {
+                return UnprocessableEntity(new { error = ex.Message });
+            }
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("trace/{sessionId}")]
+        public async Task<IActionResult> GetSessionTrace(Guid sessionId)
+        {
+            try
+            {
+                var result = await _chatService.GetSessionTraceAsync(sessionId, CurrentUserId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("message/{messageId}")]
+        public async Task<IActionResult> DeleteMessage(Guid messageId)
+        {
+            try
+            {
+                await _chatService.DeleteMessageAsync(messageId, CurrentUserId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
         }
 
@@ -84,12 +164,16 @@ namespace AgentForge.Orchestrator.Controllers
         {
             try
             {
-                await _chatService.DeleteConversationAsync(conversationId);
+                await _chatService.DeleteConversationAsync(conversationId, CurrentUserId);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { error = ex.Message });
+            }
+            catch (ForbiddenAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
         }
     }

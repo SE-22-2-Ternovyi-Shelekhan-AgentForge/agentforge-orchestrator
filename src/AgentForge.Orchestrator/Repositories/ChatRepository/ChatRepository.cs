@@ -21,6 +21,11 @@ namespace AgentForge.Orchestrator.Repositories
                 .ToListAsync();
         }
 
+        public async Task<ChatMessage?> RetrieveByIdAsync(Guid id)
+        {
+            return await _context.ChatMessages.FindAsync(id);
+        }
+
         public async Task AddMessageAsync(ChatMessage message)
         {
             if (message == null)
