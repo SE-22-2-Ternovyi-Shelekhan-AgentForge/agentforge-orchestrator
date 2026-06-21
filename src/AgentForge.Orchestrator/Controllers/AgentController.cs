@@ -76,6 +76,20 @@ namespace AgentForge.Orchestrator.Controllers
             }
         }
 
+        [HttpDelete("teams/{teamId}")]
+        public async Task<IActionResult> DeleteTeam(Guid teamId)
+        {
+            try
+            {
+                await _agentService.DeleteTeamAsync(teamId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateAgent([FromBody] AgentDto request)
         {

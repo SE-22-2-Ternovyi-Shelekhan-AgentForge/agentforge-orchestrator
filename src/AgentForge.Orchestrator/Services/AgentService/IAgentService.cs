@@ -9,6 +9,7 @@ namespace AgentForge.Orchestrator.Services
         Task<IEnumerable<AgentTeamDto>> GetAllTeamsAsync();
         Task UpdateAgentAsync(AgentDto agentDto);
         Task UpdateTeamAsync(AgentTeamDto agentTeamDto);
+        Task DeleteTeamAsync(Guid teamId);
         Task DeleteAgentAsync(Guid agentId);
     }
 }
