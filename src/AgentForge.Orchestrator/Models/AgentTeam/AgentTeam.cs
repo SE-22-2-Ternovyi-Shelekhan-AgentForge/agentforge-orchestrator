@@ -15,6 +15,10 @@ namespace AgentForge.Orchestrator.Models
 
         public string? SupervisorPrompt { get; set; }
 
+        // Team-level orchestration limits. Null → worker defaults (rounds 2, iterations 10).
+        public int? MaxRounds { get; set; }
+        public int? MaxIterations { get; set; }
+
         public List<Agent> Agents { get; set; } = new List<Agent>();
         public List<Conversation> Conversations { get; set; } = new List<Conversation>();
     }

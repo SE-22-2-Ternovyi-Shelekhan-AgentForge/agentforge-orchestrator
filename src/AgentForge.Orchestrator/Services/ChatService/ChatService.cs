@@ -136,7 +136,8 @@ namespace AgentForge.Orchestrator.Services
                 Team = new TeamConfigDto
                 {
                     SupervisorPrompt = team.SupervisorPrompt,
-                    MaxIterations    = 10,
+                    MaxIterations    = team.MaxIterations ?? 10,
+                    MaxRounds        = team.MaxRounds ?? 2,
                     Agents           = team.Agents.Select(a => new AgentConfigDto
                     {
                         Role         = a.Role,

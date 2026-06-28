@@ -24,6 +24,7 @@ public class TeamConfigDto
     [JsonPropertyName("supervisor_prompt")] public string? SupervisorPrompt { get; set; }
     [JsonPropertyName("agents")]            public List<AgentConfigDto> Agents { get; set; } = new();
     [JsonPropertyName("max_iterations")]    public int MaxIterations { get; set; } = 10;
+    [JsonPropertyName("max_rounds")]        public int MaxRounds { get; set; } = 2;
 }
 
 public class AgentConfigDto
